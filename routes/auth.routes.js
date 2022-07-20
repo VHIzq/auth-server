@@ -1,14 +1,37 @@
-const { Router } = require('express');
-const { createUser, loginUser, renewToken } = require('../controllers/auth.controller');
+const { Router } = require("express")
+const { check } = require("express-validator")
+const {
+  createUser,
+  loginUser,
+  renewToken,
+} = require("../controllers/auth.controller")
+const { validateFields } = require("../middlewares/validator-fields")
 
-const router = Router();
+const router = Router()
 
-router.post("/new", createUser);
+router.post(
+  "/new",
+  [
+    check("name", "El nombre es obligatorio").not().isEmpty(),
+    check("email", "El email es oblighatorio").isEmail(),
+    check("password", "La contraseña es obligatoria")
+      .isLength({ min: 6 }),
+    validateFields,
+  ],
+  createUser
+)
 
-router.post('/', loginUser);
+router.post(
+  "/",
+  [
+    check("email", "El email es obligatorio").isEmail(),
+    check("password", "La contraseña es obligatoria")
+      .isLength({ min: 6 }),
+    validateFields,
+  ],
+  loginUser
+)
 
-router.get('/renew', renewToken);
+router.get("/renew", renewToken)
 
-
-
-module.exports = router;
+module.exports = router
