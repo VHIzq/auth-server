@@ -5,6 +5,7 @@ const {
   loginUser,
   renewToken,
 } = require("../controllers/auth.controller")
+const { validateJWT } = require("../middlewares/validate-token")
 const { validateFields } = require("../middlewares/validator-fields")
 
 const router = Router()
@@ -12,7 +13,7 @@ const router = Router()
 router.post(
   "/new",
   [
-    check("name", "El nombre es obligatorio").not().isEmpty(),
+    check("name", "El nombre es obligatorio" ).not().isEmpty(),
     check("email", "El email es oblighatorio").isEmail(),
     check("password", "La contraseña es obligatoria")
       .isLength({ min: 6 }),
@@ -32,6 +33,6 @@ router.post(
   loginUser
 )
 
-router.get("/renew", renewToken)
+router.get("/renew",validateJWT ,renewToken)
 
 module.exports = router
