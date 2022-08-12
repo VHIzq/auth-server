@@ -14,7 +14,7 @@ const generateJWT = (uid, name) => {
         if (err) {
           console.log(err)
           reject(err)
-        } 
+        }
         resolve(token)
       }
     )
@@ -22,5 +22,5 @@ const generateJWT = (uid, name) => {
 }
 
 module.exports = {
-  generateJWT
+  generateJWT,
 }

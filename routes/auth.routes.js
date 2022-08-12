@@ -13,10 +13,9 @@ const router = Router()
 router.post(
   "/new",
   [
-    check("name", "El nombre es obligatorio" ).not().isEmpty(),
+    check("name", "El nombre es obligatorio").not().isEmpty(),
     check("email", "El email es oblighatorio").isEmail(),
-    check("password", "La contraseña es obligatoria")
-      .isLength({ min: 6 }),
+    check("password", "La contraseña es obligatoria").isLength({ min: 6 }),
     validateFields,
   ],
   createUser
@@ -26,13 +25,12 @@ router.post(
   "/",
   [
     check("email", "El email es obligatorio").isEmail(),
-    check("password", "La contraseña es obligatoria")
-      .isLength({ min: 6 }),
+    check("password", "La contraseña es obligatoria").isLength({ min: 6 }),
     validateFields,
   ],
   loginUser
 )
 
-router.get("/renew",validateJWT ,renewToken)
+router.get("/renew", validateJWT, renewToken)
 
 module.exports = router

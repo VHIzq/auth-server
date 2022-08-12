@@ -1,27 +1,27 @@
-const { response } = require("express");
-const User = require("../models/User");
-const bCrypt = require('bcryptjs');
-const { generateJWT } = require("../helpers/jwt");
+const { response } = require("express")
+const User = require("../models/User")
+const bCrypt = require("bcryptjs")
+const { generateJWT } = require("../helpers/jwt")
 
 const createUser = async (req, res = response) => {
   const { email, name, password } = req.body
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email })
 
     //*check email
     if (user) {
       return res.status(400).json({
         ok: false,
-        msg: 'User already exists'
+        msg: "User already exists",
       })
     }
 
     //*create user in model
     const dbUser = new User(req.body)
-    
+
     //*hashing password
-    const salt = bCrypt.genSaltSync();
+    const salt = bCrypt.genSaltSync()
     dbUser.password = bCrypt.hashSync(password, salt)
 
     //*generate JWT
@@ -29,41 +29,34 @@ const createUser = async (req, res = response) => {
 
     //*create user in db
     await dbUser.save()
-  
+
     //*generate status response
     return res.status(201).json({
       ok: true,
       uid: dbUser.id,
       name,
-      token
+      email,
+      token,
     })
-
-
-
-
   } catch (error) {
-    console.log(error);
+    console.log(error)
     return res.status(500).json({
       ok: false,
       msg: "Failed. Communicate with admin",
     })
   }
-
-  
 }
 
 const loginUser = async (req, res = response) => {
-
-  const {email, password} = req.body
+  const { email, password } = req.body
 
   try {
-    
     const dbUser = await User.findOne({ email })
-    
+
     if (!dbUser) {
       return res.status(400).json({
         ok: false,
-        msg: "The email doesn't exists" 
+        msg: "The email doesn't exists",
       })
     }
 
@@ -78,39 +71,43 @@ const loginUser = async (req, res = response) => {
     }
 
     //*generate JWT
-    const token = await generateJWT(dbUser.id, dbUser.name)
-    
+    const token = await generateJWT(dbUser.id, dbUser.name, dbUser.email)
+
     //*return from service
     return res.json({
       ok: true,
       uid: dbUser.id,
       name: dbUser.name,
-      token
+      email: dbUser.email,
+      token,
     })
-
-    
   } catch (error) {
-    console.log(error);
+    console.log(error)
 
     return res.status(500).json({
       ok: false,
-      msg: 'Communicate with admin'
+      msg: "Communicate with admin",
     })
   }
-
 }
 
 const renewToken = async (req, res = response) => {
+  const { uid } = req
 
-  const { uid, name } = req;
-  const token = await generateJWT(uid, name);
-
-  return res.json({
-    ok: true,
-    uid,
-    name,
-    token
-  })
+  const hasUid = uid
+  if (hasUid) {
+    //read db
+    const dbUser = await User.findById(uid)
+    const token = await generateJWT(uid, dbUser.name)
+    
+    return res.json({
+      ok: true,
+      uid,
+      name: dbUser.name,
+      email: dbUser.email,
+      token,
+    })
+  }
 }
 
 module.exports = {
